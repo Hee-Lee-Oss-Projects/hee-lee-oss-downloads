@@ -1,0 +1,14 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo [elyos] Donated-compute lane is interactive-only. Run /elyos:start to begin a good-deed session."
+          }
+        ]
+      }
+    ]
+  }
+}
