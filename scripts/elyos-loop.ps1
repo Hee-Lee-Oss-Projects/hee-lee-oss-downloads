@@ -1,10 +1,10 @@
 <#
 .SYNOPSIS
-    Loop through Elyos good-deed tasks using your own AI agent (donated-compute lane).
+    Loop through Hee-Lee Oss good-deed tasks using your own AI agent (donated-compute lane).
 
 .DESCRIPTION
-    Runs a batch of Elyos good deeds end-to-end:
-      elyos next  ->  your agent (claude -p)  ->  elyos submit  ->  repeat
+    Runs a batch of Hee-Lee Oss good deeds end-to-end:
+      hee-lee-oss next  ->  your agent (claude -p)  ->  hee-lee-oss submit  ->  repeat
 
     Each deed runs in a fresh agent invocation so context stays within limits.
     The loop stops when it reaches -Count, the session cap, or the task queue is empty.
@@ -14,12 +14,12 @@
     The script will refuse to continue if ANTHROPIC_API_KEY is detected.
 
 .PARAMETER Repo
-    Target project repo (e.g. "Elyos-Projects/open-coding-curriculum").
-    Omit to let Elyos auto-pick the highest-priority project from the registry.
+    Target project repo (e.g. "Hee-Lee-Oss-Projects/open-coding-curriculum").
+    Omit to let Hee-Lee Oss auto-pick the highest-priority project from the registry.
 
 .PARAMETER Count
     Number of deeds to attempt this run. Default: 5.
-    Set higher (20-50) for an unattended session. The session cap in ~/Elyos/config.yaml
+    Set higher (20-50) for an unattended session. The session cap in ~/Hee-Lee Oss/config.yaml
     is the safety ceiling — the loop stops automatically when it is reached.
 
 .PARAMETER ClaudeModel
@@ -35,7 +35,7 @@
     Set to "gemini-cli", "cursor", "aider", "codex", or "copilot" if using another agent.
 
 .PARAMETER Prompt
-    The instruction sent to your agent for each task. The default covers all Elyos task types
+    The instruction sent to your agent for each task. The default covers all Hee-Lee Oss task types
     and includes the required guardrail clause. Only override if you have a good reason.
 
 .PARAMETER PermissionMode
@@ -54,29 +54,29 @@
     Keep each workspace after submit. Default: delete on success (frees the session-cap slot).
 
 .PARAMETER WorkDir
-    Root directory for Elyos workspaces. Default: ~/Elyos
+    Root directory for Hee-Lee Oss workspaces. Default: ~/Hee-Lee Oss
 
 .EXAMPLE
     # Run 10 deeds auto-picking tasks and models (recommended starting point)
-    .\elyos-loop.ps1 -Count 10 -ClaudeModel Auto
+    .\hee-lee-oss-loop.ps1 -Count 10 -ClaudeModel Auto
 
 .EXAMPLE
     # Run 20 deeds against a specific project on Sonnet
-    .\elyos-loop.ps1 -Repo Elyos-Projects/open-coding-curriculum -Count 20 -ClaudeModel sonnet
+    .\hee-lee-oss-loop.ps1 -Repo Hee-Lee-Oss-Projects/open-coding-curriculum -Count 20 -ClaudeModel sonnet
 
 .EXAMPLE
     # Test your setup without running the agent or opening PRs
-    .\elyos-loop.ps1 -Count 3 -DryRun
+    .\hee-lee-oss-loop.ps1 -Count 3 -DryRun
 
 .EXAMPLE
     # Fully unattended session: 50 content tasks, auto-model, no prompts
-    .\elyos-loop.ps1 -Count 50 -ClaudeModel Auto -PermissionMode skip
+    .\hee-lee-oss-loop.ps1 -Count 50 -ClaudeModel Auto -PermissionMode skip
 
 .NOTES
     Prerequisites:
-      npm install -g @elyos/cli
-      elyos init
-      elyos doctor
+      npm install -g @hee-lee-oss/cli
+      hee-lee-oss init
+      hee-lee-oss doctor
       gh auth login
 #>
 [CmdletBinding()]
@@ -85,12 +85,12 @@ param(
     [int]$Count = 5,
     [string]$ClaudeModel = "",
     [string]$Agent = "claude-code",
-    [string]$Prompt = "Read .elyos/TASK.md and .elyos/CONTEXT.md, then produce the deliverable at the task's output path. Meet every acceptance criterion. Honor the refusal guardrails in CONTEXT.md — if the task would cause harm, mislead, give unqualified high-stakes advice without required review, primarily benefit a for-profit, or violate a license or privacy, STOP and write nothing.",
+    [string]$Prompt = "Read .hee-lee-oss/TASK.md and .hee-lee-oss/CONTEXT.md, then produce the deliverable at the task's output path. Meet every acceptance criterion. Honor the refusal guardrails in CONTEXT.md — if the task would cause harm, mislead, give unqualified high-stakes advice without required review, primarily benefit a for-profit, or violate a license or privacy, STOP and write nothing.",
     [ValidateSet("acceptEdits", "skip")][string]$PermissionMode = "acceptEdits",
     [switch]$DryRun,
     [switch]$NoFork,
     [switch]$KeepWorkspaces,
-    [string]$WorkDir = "$env:USERPROFILE\Elyos",
+    [string]$WorkDir = "$env:USERPROFILE\Hee-Lee Oss",
     [ValidateSet("donated", "funded")][string]$Lane = "donated"
 )
 
@@ -110,9 +110,9 @@ If you intend to use the funded lane, re-run with: -Lane funded
     return
 }
 
-# --- Locate the elyos CLI ---
-if (-not (Get-Command elyos -ErrorAction SilentlyContinue)) {
-    Write-Error "elyos not found on PATH. Install it with: npm install -g @elyos/cli"
+# --- Locate the hee-lee-oss CLI ---
+if (-not (Get-Command hee-lee-oss -ErrorAction SilentlyContinue)) {
+    Write-Error "hee-lee-oss not found on PATH. Install it with: npm install -g @hee-lee-oss/cli"
     return
 }
 if (-not (Get-Command claude -ErrorAction SilentlyContinue)) {
@@ -120,15 +120,15 @@ if (-not (Get-Command claude -ErrorAction SilentlyContinue)) {
     return
 }
 
-function Invoke-Elyos {
+function Invoke-Hee-Lee Oss {
     param([Parameter(ValueFromRemainingArguments = $true)] $RestArgs)
     $old = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
-    try { & elyos @RestArgs } finally { $ErrorActionPreference = $old }
+    try { & hee-lee-oss @RestArgs } finally { $ErrorActionPreference = $old }
 }
 
 # --- Auto model: pick per task based on effort and risk tier saved in task.json ---
 function Get-AutoModel([string]$workspace) {
-    $taskFile = Join-Path $workspace ".elyos\task.json"
+    $taskFile = Join-Path $workspace ".hee-lee-oss\task.json"
     $effort = "medium"; $risk = "medium"
     if (Test-Path $taskFile) {
         try {
@@ -150,7 +150,7 @@ if ($Repo)   { $nextArgs += @("--repo", $Repo) }
 if ($NoFork) { $nextArgs += "--no-fork" }
 
 Write-Host ""
-Write-Host "Elyos loop starting — up to $Count deed(s), lane: $Lane" -ForegroundColor Cyan
+Write-Host "Hee-Lee Oss loop starting — up to $Count deed(s), lane: $Lane" -ForegroundColor Cyan
 if ($DryRun) { Write-Host "[DRY RUN — agent and submit steps will be skipped]" -ForegroundColor Yellow }
 Write-Host ""
 
@@ -158,13 +158,13 @@ for ($i = 1; $i -le $Count; $i++) {
     Write-Host "=== deed $i / $Count ===" -ForegroundColor Cyan
 
     # Pick and prepare the next task
-    $out = (Invoke-Elyos @nextArgs 2>&1 | Out-String)
+    $out = (Invoke-Hee-Lee Oss @nextArgs 2>&1 | Out-String)
     Write-Host $out
 
-    $m = [regex]::Match($out, 'ELYOS_NEXT taskId=(\S+) repo=(\S+) workspace=(.+?) output=(\S+)')
+    $m = [regex]::Match($out, 'HEE_LEE_OSS_NEXT taskId=(\S+) repo=(\S+) workspace=(.+?) output=(\S+)')
     if (-not $m.Success) {
         if ($out -match 'session cap') {
-            Write-Warning "Session cap reached. Raise maxTasksPerSession in ~/Elyos/config.yaml, or run -SubmitReady to clear completed work."
+            Write-Warning "Session cap reached. Raise maxTasksPerSession in ~/Hee-Lee Oss/config.yaml, or run -SubmitReady to clear completed work."
         } else {
             Write-Host "No more eligible tasks — stopping." -ForegroundColor Yellow
         }
@@ -176,7 +176,7 @@ for ($i = 1; $i -le $Count; $i++) {
     $ws       = $m.Groups[3].Value.Trim()
 
     if (-not (Test-Path $ws)) {
-        Write-Warning "Workspace not found at $ws — stopping. Check ~/Elyos/config.yaml for session cap settings."
+        Write-Warning "Workspace not found at $ws — stopping. Check ~/Hee-Lee Oss/config.yaml for session cap settings."
         break
     }
 
@@ -209,7 +209,7 @@ for ($i = 1; $i -le $Count; $i++) {
     # Submit: commit, push, open PR, write receipt
     Write-Host "-> submitting $taskId..." -ForegroundColor DarkGray
     $submitArgs = @("submit", $taskId, "--repo", $repoUsed, "--agent", $Agent)
-    $submitOut  = (Invoke-Elyos @submitArgs 2>&1 | Out-String)
+    $submitOut  = (Invoke-Hee-Lee Oss @submitArgs 2>&1 | Out-String)
     Write-Host $submitOut
 
     $prMatch = [regex]::Match($submitOut, 'https://github\.com/\S+?/pull/\d+')
@@ -233,4 +233,4 @@ if ($prUrls.Count) {
     $prUrls | ForEach-Object { Write-Host "  $_" -ForegroundColor Green }
 }
 Write-Host ""
-Invoke-Elyos status
+Invoke-Hee-Lee Oss status

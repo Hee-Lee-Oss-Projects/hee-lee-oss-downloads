@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# elyos-loop.sh — loop through Elyos good-deed tasks using your own AI agent (donated-compute lane)
+# hee-lee-oss-loop.sh — loop through Hee-Lee Oss good-deed tasks using your own AI agent (donated-compute lane)
 #
 # Usage:
-#   bash elyos-loop.sh [options]
+#   bash hee-lee-oss-loop.sh [options]
 #
 # Options:
 #   --count N          Number of deeds to attempt (default: 5)
@@ -15,19 +15,19 @@
 #   --no-fork          Push directly to project repo (only if you have write access)
 #   --keep-workspaces  Keep workspaces after submit (default: delete on success)
 #   --dry-run          Prepare workspaces only; skip agent and submit
-#   --work-dir DIR     Root workspace directory (default: ~/Elyos)
+#   --work-dir DIR     Root workspace directory (default: ~/Hee-Lee Oss)
 #   --help             Show this help
 #
 # Prerequisites:
-#   npm install -g @elyos/cli
-#   elyos init && elyos doctor
+#   npm install -g @hee-lee-oss/cli
+#   hee-lee-oss init && hee-lee-oss doctor
 #   gh auth login
 #
 # Examples:
-#   bash elyos-loop.sh --count 10 --model auto
-#   bash elyos-loop.sh --repo Elyos-Projects/open-coding-curriculum --count 20 --model sonnet
-#   bash elyos-loop.sh --count 3 --dry-run
-#   bash elyos-loop.sh --count 50 --model auto --permission-mode skip
+#   bash hee-lee-oss-loop.sh --count 10 --model auto
+#   bash hee-lee-oss-loop.sh --repo Hee-Lee-Oss-Projects/open-coding-curriculum --count 20 --model sonnet
+#   bash hee-lee-oss-loop.sh --count 3 --dry-run
+#   bash hee-lee-oss-loop.sh --count 50 --model auto --permission-mode skip
 
 set -euo pipefail
 
@@ -41,8 +41,8 @@ PERMISSION_MODE="acceptEdits"
 NO_FORK=false
 KEEP_WORKSPACES=false
 DRY_RUN=false
-WORK_DIR="${HOME}/Elyos"
-PROMPT="Read .elyos/TASK.md and .elyos/CONTEXT.md, then produce the deliverable at the task's output path. Meet every acceptance criterion. Honor the refusal guardrails in CONTEXT.md — if the task would cause harm, mislead, give unqualified high-stakes advice without required review, primarily benefit a for-profit, or violate a license or privacy, STOP and write nothing."
+WORK_DIR="${HOME}/Hee-Lee Oss"
+PROMPT="Read .hee-lee-oss/TASK.md and .hee-lee-oss/CONTEXT.md, then produce the deliverable at the task's output path. Meet every acceptance criterion. Honor the refusal guardrails in CONTEXT.md — if the task would cause harm, mislead, give unqualified high-stakes advice without required review, primarily benefit a for-profit, or violate a license or privacy, STOP and write nothing."
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
@@ -74,8 +74,8 @@ if [[ "$LANE" == "donated" ]] && [[ -n "${ANTHROPIC_API_KEY:-}" ]]; then
 fi
 
 # --- Check prerequisites ---
-if ! command -v elyos &>/dev/null; then
-  echo "ERROR: elyos not found. Install with: npm install -g @elyos/cli" >&2
+if ! command -v hee-lee-oss &>/dev/null; then
+  echo "ERROR: hee-lee-oss not found. Install with: npm install -g @hee-lee-oss/cli" >&2
   exit 1
 fi
 if ! command -v claude &>/dev/null; then
@@ -86,7 +86,7 @@ fi
 # --- Auto model: read task.json to pick the right model tier ---
 get_auto_model() {
   local ws="$1"
-  local task_file="$ws/.elyos/task.json"
+  local task_file="$ws/.hee-lee-oss/task.json"
   local effort="medium" risk="medium"
   if [[ -f "$task_file" ]]; then
     effort=$(python3 -c "import json,sys; d=json.load(open('$task_file')); print(d.get('tokenEstimate','medium'))" 2>/dev/null || echo "medium")
@@ -97,7 +97,7 @@ get_auto_model() {
   echo "haiku"
 }
 
-# --- Build elyos next args ---
+# --- Build hee-lee-oss next args ---
 NEXT_ARGS=("next" "--lane" "$LANE")
 [[ -n "$REPO" ]]   && NEXT_ARGS+=("--repo" "$REPO")
 [[ "$NO_FORK" == true ]] && NEXT_ARGS+=("--no-fork")
@@ -106,7 +106,7 @@ DONE=0
 PR_URLS=()
 
 echo ""
-echo "Elyos loop starting — up to $COUNT deed(s), lane: $LANE"
+echo "Hee-Lee Oss loop starting — up to $COUNT deed(s), lane: $LANE"
 [[ "$DRY_RUN" == true ]] && echo "[DRY RUN — agent and submit steps will be skipped]"
 echo ""
 
@@ -114,13 +114,13 @@ for ((i=1; i<=COUNT; i++)); do
   echo "=== deed $i / $COUNT ==="
 
   # Pick and prepare the next task
-  NEXT_OUT=$(elyos "${NEXT_ARGS[@]}" 2>&1) || true
+  NEXT_OUT=$(hee-lee-oss "${NEXT_ARGS[@]}" 2>&1) || true
   echo "$NEXT_OUT"
 
   # Parse the machine-readable output line
-  if ! echo "$NEXT_OUT" | grep -q "ELYOS_NEXT"; then
+  if ! echo "$NEXT_OUT" | grep -q "HEE_LEE_OSS_NEXT"; then
     if echo "$NEXT_OUT" | grep -q "session cap"; then
-      echo "Session cap reached. Raise maxTasksPerSession in ~/Elyos/config.yaml, or submit/clear ready work."
+      echo "Session cap reached. Raise maxTasksPerSession in ~/Hee-Lee Oss/config.yaml, or submit/clear ready work."
     else
       echo "No more eligible tasks — stopping."
     fi
@@ -164,7 +164,7 @@ for ((i=1; i<=COUNT; i++)); do
 
   # Submit: commit, push, open PR, write receipt
   echo "-> submitting $TASK_ID..."
-  SUBMIT_OUT=$(elyos submit "$TASK_ID" --repo "$REPO_USED" --agent "$AGENT" 2>&1) || true
+  SUBMIT_OUT=$(hee-lee-oss submit "$TASK_ID" --repo "$REPO_USED" --agent "$AGENT" 2>&1) || true
   echo "$SUBMIT_OUT"
 
   PR_URL=$(echo "$SUBMIT_OUT" | grep -oP 'https://github\.com/\S+?/pull/\d+' | head -1)
@@ -188,4 +188,4 @@ if [[ ${#PR_URLS[@]} -gt 0 ]]; then
   for url in "${PR_URLS[@]}"; do echo "  $url"; done
 fi
 echo ""
-elyos status
+hee-lee-oss status

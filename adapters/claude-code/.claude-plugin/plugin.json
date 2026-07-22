@@ -1,11 +1,11 @@
 {
-  "name": "elyos",
+  "name": "hee-lee-oss",
   "version": "0.1.0",
-  "description": "Run Elyos good-deed tasks inside Claude Code, interactively on your subscription.",
+  "description": "Run Hee-Lee Oss good-deed tasks inside Claude Code, interactively on your subscription.",
   "author": {
-    "name": "Elyos",
-    "url": "https://github.com/jdev1977/elyos"
+    "name": "Hee-Lee Oss",
+    "url": "https://github.com/jdev1977/hee-lee-oss"
   },
-  "homepage": "https://github.com/jdev1977/elyos",
-  "keywords": ["elyos", "good-deeds", "ai-for-good", "open-source"]
+  "homepage": "https://github.com/jdev1977/hee-lee-oss",
+  "keywords": ["hee-lee-oss", "good-deeds", "ai-for-good", "open-source"]
 }
